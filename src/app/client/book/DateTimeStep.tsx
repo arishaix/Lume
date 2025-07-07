@@ -9,23 +9,24 @@ const TIME_SLOTS = [
   "5:30 PM",
 ];
 
-const PRICES = {
-  Makeup: [60, 100, 150],
-  Nails: [40, 60, 80],
-};
-
 export default function DateTimeStep({
-  selectedService,
+  service,
   onBack,
   onDateTimeSelected,
+  initialDate = "",
+  initialTime = "",
+  initialPrice = null,
 }: {
-  selectedService: string;
+  service: any; // full service object
   onBack: () => void;
   onDateTimeSelected: (date: string, time: string, price: number) => void;
+  initialDate?: string;
+  initialTime?: string;
+  initialPrice?: number | null;
 }) {
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [price, setPrice] = useState<number | null>(null);
+  const [date, setDate] = useState(initialDate);
+  const [time, setTime] = useState(initialTime);
+  const [price, setPrice] = useState<number | null>(initialPrice);
   const [showError, setShowError] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -80,20 +81,32 @@ export default function DateTimeStep({
       <div className="w-full flex flex-col gap-2">
         <label className="text-gray-700 font-medium text-sm">Price</label>
         <div className="flex gap-2">
-          {PRICES[selectedService as "Makeup" | "Nails"].map((p) => (
+          {service &&
+          Array.isArray(service.prices) &&
+          service.prices.length > 0 ? (
+            service.prices.map((p: any) => (
+              <button
+                type="button"
+                key={p.price}
+                className={`px-3 py-2 border rounded transition font-medium text-sm ${
+                  price === p.price
+                    ? "bg-black text-white border-black"
+                    : "bg-white text-black border-gray-300 hover:bg-black hover:text-white"
+                }`}
+                onClick={() => setPrice(p.price)}
+              >
+                {p.label ? `${p.label} ($${p.price})` : `$${p.price}`}
+              </button>
+            ))
+          ) : (
             <button
               type="button"
-              key={p}
-              className={`px-3 py-2 border rounded transition font-medium text-sm ${
-                price === p
-                  ? "bg-black text-white border-black"
-                  : "bg-white text-black border-gray-300 hover:bg-black hover:text-white"
-              }`}
-              onClick={() => setPrice(p)}
+              className="px-3 py-2 border rounded text-sm"
+              disabled
             >
-              ${p}
+              No prices
             </button>
-          ))}
+          )}
         </div>
       </div>
       <div className="w-full flex justify-between mt-3 gap-2">

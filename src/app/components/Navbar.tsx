@@ -23,7 +23,41 @@ export default function Navbar() {
                 className="p-2 text-gray-700 hover:text-black focus:outline-none cursor-pointer"
                 aria-label="Admin Dashboard"
               >
-                <FaTachometerAlt size={20} />
+                {/* Blocks dashboard icon */}
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                  <rect
+                    x="3"
+                    y="3"
+                    width="7"
+                    height="7"
+                    rx="2"
+                    fill="currentColor"
+                  />
+                  <rect
+                    x="14"
+                    y="3"
+                    width="7"
+                    height="7"
+                    rx="2"
+                    fill="currentColor"
+                  />
+                  <rect
+                    x="14"
+                    y="14"
+                    width="7"
+                    height="7"
+                    rx="2"
+                    fill="currentColor"
+                  />
+                  <rect
+                    x="3"
+                    y="14"
+                    width="7"
+                    height="7"
+                    rx="2"
+                    fill="currentColor"
+                  />
+                </svg>
               </button>
             </Link>
           )}

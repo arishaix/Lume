@@ -1,10 +1,16 @@
 "use client";
 import { SessionProvider } from "next-auth/react";
+import { Toaster } from "react-hot-toast";
 
 export default function ClientRootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <SessionProvider>{children}</SessionProvider>;
+  return (
+    <>
+      <Toaster position="top-right" />
+      <SessionProvider>{children}</SessionProvider>
+    </>
+  );
 }

@@ -1,26 +1,63 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
+import { CustomToast } from "../../../components/CustomToast";
 
 export default function ConfirmStep({
-  service,
+  service, // service ID
+  serviceName, // service name
   date,
   time,
   price,
   name,
   email,
   onBack,
+  onBookingComplete,
 }: {
   service: string;
+  serviceName: string;
   date: string;
   time: string;
   price: number;
   name: string;
   email: string;
   onBack: () => void;
+  onBookingComplete?: () => void;
 }) {
-  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleStripe = () => {
-    setSuccess("Stripe payment flow coming soon! Booking confirmed.");
+  const handleStripe = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          selectedServiceId: service,
+          appointmentDate: date,
+          appointmentTime: time,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.custom(
+          <CustomToast type="error" message={data.error || "Booking failed"} />
+        );
+      } else {
+        toast.custom(
+          <CustomToast
+            type="success"
+            message="Booking Confirmed!"
+            link="/client/bookings"
+            linkText="Go to My Bookings"
+          />
+        );
+        if (onBookingComplete) onBookingComplete();
+      }
+    } catch (err) {
+      toast.custom(<CustomToast type="error" message="Something went wrong" />);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -30,7 +67,7 @@ export default function ConfirmStep({
       </h2>
       <div className="w-full flex flex-col items-center gap-2 text-black">
         <div>
-          <span className="font-medium">Service:</span> {service}
+          <span className="font-medium">Service:</span> {serviceName}
         </div>
         <div>
           <span className="font-medium">Date:</span> {date}
@@ -52,21 +89,18 @@ export default function ConfirmStep({
         <button
           className="w-full px-6 py-2 border border-black text-black bg-white rounded hover:bg-black hover:text-white transition"
           onClick={handleStripe}
+          disabled={loading}
         >
-          Pay with Stripe
+          {loading ? "Booking..." : "Pay with Stripe"}
         </button>
         <button
           className="w-full px-6 py-2 border border-black text-black bg-white rounded hover:bg-black hover:text-white transition"
           onClick={onBack}
+          disabled={loading}
         >
           Back
         </button>
       </div>
-      {success && (
-        <div className="w-full text-center text-green-600 font-medium mt-4">
-          {success}
-        </div>
-      )}
     </div>
   );
 }

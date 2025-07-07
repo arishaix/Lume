@@ -4,7 +4,7 @@ import dbConnect from "../mongodb";
 import User from "@/models/userModel";
 import bcrypt from "bcrypt";
 
-const handler = NextAuth({
+export const authOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -25,7 +25,7 @@ const handler = NextAuth({
           (await bcrypt.compare(credentials.password, user.password))
         ) {
           return {
-            id: user._id.toString(),
+            id: user._id.toString(), // Always return id from _id
             email: user.email,
             name: user.name,
             role: user.role,
@@ -36,15 +36,19 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: any; user?: any }) {
       if (user) {
         (token as any).role = (user as any).role;
+        // Use user.id if present, otherwise user._id (from MongoDB)
+        (token as any).id =
+          user.id || (user._id ? user._id.toString() : undefined);
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: any }) {
       if (token && session.user) {
         (session.user as any).role = (token as any).role;
+        (session.user as any).id = (token as any).id;
       }
       return session;
     },
@@ -53,6 +57,8 @@ const handler = NextAuth({
     signIn: "/client/login", // Custom login page
     // signOut, error, etc. can be added here
   },
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
