@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
+import ClientRootLayout from "./ClientRootLayout";
 
 const cormorantGaramond = Cormorant_Garamond({
   variable: "--font-cormorant-garamond",
@@ -22,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${cormorantGaramond.variable} antialiased`}>
-        {children}
+        <ClientRootLayout>{children}</ClientRootLayout>
       </body>
     </html>
   );

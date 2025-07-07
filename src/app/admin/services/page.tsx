@@ -3,6 +3,9 @@
 import AdminNavbar from "../../components/AdminNavbar";
 import { useState } from "react";
 import ServiceEditForm from "./ServiceEditForm";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const services = [
   {
@@ -22,6 +25,24 @@ const services = [
 ];
 
 export default function AdminServicesPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "loading") return;
+    if (!session || (session.user as any).role !== "admin") {
+      router.replace("/");
+    }
+  }, [session, status, router]);
+
+  if (
+    status === "loading" ||
+    !session ||
+    (session.user as any).role !== "admin"
+  ) {
+    return <div>Loading...</div>;
+  }
+
   const [editId, setEditId] = useState<number | null>(null);
 
   const handleEdit = (service: (typeof services)[0]) => {

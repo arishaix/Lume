@@ -1,3 +1,7 @@
+"use client";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import AdminNavbar from "../../components/AdminNavbar";
 import { FaCalendarAlt, FaClock, FaDollarSign } from "react-icons/fa";
 import Link from "next/link";
@@ -45,6 +49,24 @@ const recent = [
 ];
 
 export default function AdminDashboardPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "loading") return;
+    if (!session || (session.user as any).role !== "admin") {
+      router.replace("/");
+    }
+  }, [session, status, router]);
+
+  if (
+    status === "loading" ||
+    !session ||
+    (session.user as any).role !== "admin"
+  ) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <>
       <AdminNavbar />
