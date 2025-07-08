@@ -28,30 +28,30 @@ export default function ConfirmStep({
   const handleStripe = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/bookings", {
+      const res = await fetch("/api/checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          selectedServiceId: service,
-          appointmentDate: date,
-          appointmentTime: time,
+          service, // service ID
+          userId: undefined, // TODO: Replace with actual user ID if available
+          serviceName,
+          price: price * 100, // Stripe expects amount in cents
+          date,
+          time,
+          name,
+          email,
         }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        toast.custom(
-          <CustomToast type="error" message={data.error || "Booking failed"} />
-        );
-      } else {
+      if (!res.ok || !data.url) {
         toast.custom(
           <CustomToast
-            type="success"
-            message="Booking Confirmed!"
-            link="/client/bookings"
-            linkText="Go to My Bookings"
+            type="error"
+            message={data.error || "Stripe session failed"}
           />
         );
-        if (onBookingComplete) onBookingComplete();
+      } else {
+        window.location.href = data.url; // Redirect to Stripe Checkout
       }
     } catch (err) {
       toast.custom(<CustomToast type="error" message="Something went wrong" />);
@@ -87,11 +87,15 @@ export default function ConfirmStep({
       </div>
       <div className="w-full flex flex-col gap-3 mt-4">
         <button
-          className="w-full px-6 py-2 border border-black text-black bg-white rounded hover:bg-black hover:text-white transition"
+          className="w-full px-6 py-2 border border-black text-black bg-white rounded hover:bg-black hover:text-white transition flex items-center justify-center"
           onClick={handleStripe}
           disabled={loading}
         >
-          {loading ? "Booking..." : "Pay with Stripe"}
+          {loading ? (
+            <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" />
+          ) : (
+            "Pay with Stripe"
+          )}
         </button>
         <button
           className="w-full px-6 py-2 border border-black text-black bg-white rounded hover:bg-black hover:text-white transition"

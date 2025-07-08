@@ -26,21 +26,15 @@ export default function BookPage() {
   >("service");
   const router = useRouter();
 
-  // Restore state from localStorage on mount
+  // Always clear booking state on mount
   useEffect(() => {
-    const saved =
-      typeof window !== "undefined"
-        ? localStorage.getItem(BOOKING_STORAGE_KEY)
-        : null;
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.step) setStep(parsed.step);
-        if (parsed.selectedService) setSelectedService(parsed.selectedService);
-        if (parsed.dateTime) setDateTime(parsed.dateTime);
-        if (parsed.userInfo) setUserInfo(parsed.userInfo);
-      } catch {}
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(BOOKING_STORAGE_KEY);
     }
+    setStep("service");
+    setSelectedService(null);
+    setDateTime(null);
+    setUserInfo(null);
   }, []);
 
   // Save state to localStorage on any change
