@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
         time,
         name,
         email,
+        price: String(price), // Ensure price is a string for Stripe metadata
       },
     });
 

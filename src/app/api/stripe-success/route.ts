@@ -21,6 +21,9 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // Log session metadata for debugging
+    console.log("Stripe session metadata:", session.metadata);
+
     // Connect to DB
     await clientPromise;
 
@@ -38,7 +41,9 @@ export async function GET(req: NextRequest) {
       time: session.metadata?.time,
       name: session.metadata?.name,
       email: session.metadata?.email,
-      price: session.amount_total ? session.amount_total / 100 : undefined,
+      price: session.metadata?.price
+        ? Number(session.metadata.price) / 100
+        : undefined,
       paymentStatus: "paid",
       stripeSessionId: session_id,
     };

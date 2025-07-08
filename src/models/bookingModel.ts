@@ -5,6 +5,7 @@ const BookingSchema = new Schema({
   service: { type: Schema.Types.ObjectId, ref: "Service", required: true },
   date: { type: Date, required: true },
   time: { type: String, required: true },
+  price: { type: Number, required: false },
   paymentStatus: {
     type: String,
     enum: ["pending", "paid", "cancelled"],

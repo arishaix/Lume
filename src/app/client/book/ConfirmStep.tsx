@@ -1,6 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { CustomToast } from "../../../components/CustomToast";
+import { CustomToast } from "../../components/CustomToast";
+import { useSession, signIn } from "next-auth/react";
 
 export default function ConfirmStep({
   service, // service ID
@@ -24,8 +25,20 @@ export default function ConfirmStep({
   onBookingComplete?: () => void;
 }) {
   const [loading, setLoading] = useState(false);
+  const { data: session } = useSession();
+  const [toastShown, setToastShown] = useState(false);
 
   const handleStripe = async () => {
+    if (!session || !(session.user as any)?.id) {
+      if (!toastShown) {
+        toast.custom(
+          <CustomToast type="error" message="Please log in to continue" />
+        );
+        setToastShown(true);
+        setTimeout(() => setToastShown(false), 2000); // Reset after 2s
+      }
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch("/api/checkout-session", {
@@ -33,7 +46,7 @@ export default function ConfirmStep({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           service, // service ID
-          userId: undefined, // TODO: Replace with actual user ID if available
+          userId: (session.user as any).id, // Pass userId if available
           serviceName,
           price: price * 100, // Stripe expects amount in cents
           date,
@@ -87,7 +100,11 @@ export default function ConfirmStep({
       </div>
       <div className="w-full flex flex-col gap-3 mt-4">
         <button
-          className="w-full px-6 py-2 border border-black text-black bg-white rounded hover:bg-black hover:text-white transition flex items-center justify-center"
+          className={`w-full px-6 py-2 border border-black rounded flex items-center justify-center transition ${
+            loading
+              ? "bg-black text-white cursor-not-allowed"
+              : "bg-white text-black hover:bg-black hover:text-white"
+          }`}
           onClick={handleStripe}
           disabled={loading}
         >
