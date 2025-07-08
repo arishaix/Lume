@@ -5,6 +5,8 @@ interface ConfirmationModalProps {
   onClose: () => void;
   booking?: any;
   onConfirm?: (booking: any) => void;
+  message?: string;
+  confirmText?: string;
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -12,6 +14,8 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   onClose,
   booking,
   onConfirm,
+  message,
+  confirmText,
 }) => {
   if (!open) return null;
   return (
@@ -21,7 +25,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     >
       <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-sm flex flex-col items-center">
         <h2 className="text-xl font-semibold mb-4 text-center text-black">
-          Are you sure you want to cancel this booking?
+          {message || "Are you sure you want to cancel this booking?"}
         </h2>
         <div className="flex gap-4 mt-6">
           <button
@@ -34,7 +38,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             className="px-4 py-2 border border-black text-black bg-white rounded hover:bg-black hover:text-white transition"
             onClick={() => onConfirm && onConfirm(booking)}
           >
-            Yes, Cancel
+            {confirmText || "Yes, Cancel"}
           </button>
         </div>
       </div>

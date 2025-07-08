@@ -29,6 +29,16 @@ export default function DateTimeStep({
   const [price, setPrice] = useState<number | null>(initialPrice);
   const [showError, setShowError] = useState(false);
 
+  // Build price options from individual fields
+  const priceOptions = [
+    service.basicPrice && { label: "Basic", price: service.basicPrice },
+    service.standardPrice && {
+      label: "Standard",
+      price: service.standardPrice,
+    },
+    service.premiumPrice && { label: "Premium", price: service.premiumPrice },
+  ].filter(Boolean);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (date && time && price !== null) {
@@ -81,13 +91,11 @@ export default function DateTimeStep({
       <div className="w-full flex flex-col gap-2">
         <label className="text-gray-700 font-medium text-sm">Price</label>
         <div className="flex gap-2">
-          {service &&
-          Array.isArray(service.prices) &&
-          service.prices.length > 0 ? (
-            service.prices.map((p: any) => (
+          {priceOptions.length > 0 ? (
+            priceOptions.map((p: any) => (
               <button
                 type="button"
-                key={p.price}
+                key={p.label}
                 className={`px-3 py-2 border rounded transition font-medium text-sm ${
                   price === p.price
                     ? "bg-black text-white border-black"
@@ -95,7 +103,7 @@ export default function DateTimeStep({
                 }`}
                 onClick={() => setPrice(p.price)}
               >
-                {p.label ? `${p.label} ($${p.price})` : `$${p.price}`}
+                {`${p.label} ($${p.price})`}
               </button>
             ))
           ) : (

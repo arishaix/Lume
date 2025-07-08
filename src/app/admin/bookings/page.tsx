@@ -50,7 +50,11 @@ export default function AdminBookingsPage() {
     !session ||
     (session.user as any).role !== "admin"
   ) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white px-2 sm:px-4 py-10">
+        <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   }
 
   const hasBookings = bookings.length > 0;
