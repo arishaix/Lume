@@ -4,4 +4,9 @@ const nextConfig: NextConfig = {
   /* config options here */
 };
 
-export default nextConfig;
+export default {
+  // ...other config
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+};

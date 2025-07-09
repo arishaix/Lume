@@ -21,9 +21,6 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Log session metadata for debugging
-    console.log("Stripe session metadata:", session.metadata);
-
     // Connect to DB
     await clientPromise;
 

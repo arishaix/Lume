@@ -64,6 +64,7 @@ export default function ConfirmStep({
           />
         );
       } else {
+        localStorage.setItem("bookingFlowJustCompleted", "true");
         window.location.href = data.url; // Redirect to Stripe Checkout
       }
     } catch (err) {

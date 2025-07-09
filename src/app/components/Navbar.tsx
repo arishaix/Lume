@@ -1,12 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  FaRegUser,
-  FaRegCalendarPlus,
-  FaRegListAlt,
-  FaTachometerAlt,
-} from "react-icons/fa";
+import { FaRegUser, FaRegCalendarPlus, FaRegListAlt } from "react-icons/fa";
 import { useSession } from "next-auth/react";
 
 export default function Navbar() {

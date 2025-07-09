@@ -2,7 +2,7 @@ import dbConnect from "../auth/mongodb";
 import Service from "@/models/serviceModel";
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "../auth/[...nextauth]/authOptions";
 
 export async function GET(req: NextRequest) {
   await dbConnect();

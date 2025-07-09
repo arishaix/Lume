@@ -3,6 +3,7 @@ import mongoose, { Schema, models } from "mongoose";
 const BookingSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: "User", required: false },
   service: { type: Schema.Types.ObjectId, ref: "Service", required: true },
+  serviceName: { type: String, required: false },
   date: { type: Date, required: true },
   time: { type: String, required: true },
   price: { type: Number, required: false },
@@ -11,6 +12,7 @@ const BookingSchema = new Schema({
     enum: ["paid", "completed", "cancelled"],
     default: "paid",
   },
+  stripeSessionId: { type: String, unique: true, required: false },
 });
 
 const Booking = models.Booking || mongoose.model("Booking", BookingSchema);
