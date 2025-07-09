@@ -29,16 +29,9 @@ export default function BookPage() {
   // Always clear booking state on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(BOOKING_STORAGE_KEY);
-      if (saved) {
-        const { step, selectedService, dateTime, userInfo } = JSON.parse(saved);
-        setStep(step || "service");
-        setSelectedService(selectedService || null);
-        setDateTime(dateTime || null);
-        setUserInfo(userInfo || null);
-        return;
-      }
       localStorage.removeItem(BOOKING_STORAGE_KEY);
+      // Prevent browser back/forward from showing confirmation after booking
+      window.history.replaceState(null, "", "/client/book");
     }
     setStep("service");
     setSelectedService(null);

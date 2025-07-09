@@ -29,7 +29,8 @@ export default function SuccessClient() {
   const [bookingCreated, setBookingCreated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [accessAllowed, setAccessAllowed] = useState(true);
+  const [accessAllowed, setAccessAllowed] = useState(false);
+  const [accessChecked, setAccessChecked] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -44,8 +45,8 @@ export default function SuccessClient() {
         setAccessAllowed(true);
       } else {
         setAccessAllowed(false);
-        setLoading(false);
       }
+      setAccessChecked(true);
     }
   }, []);
 
@@ -83,9 +84,10 @@ export default function SuccessClient() {
     router.push("/client/book");
   }, [router]);
 
+  if (!accessChecked) {
+    return null;
+  }
   if (!accessAllowed) {
-    // Optionally, you can redirect instead:
-    // router.replace("/client/book");
     return (
       <section className="w-full flex flex-col items-center mt-24 px-2 sm:px-4">
         <div className="w-full max-w-md mx-auto bg-white shadow-lg rounded-xl p-10 flex flex-col gap-6 items-center">
