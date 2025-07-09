@@ -22,7 +22,14 @@ export default function LoginPage() {
   }, [session, status, router]);
 
   if (status === "loading" || session) {
-    return <div>Loading...</div>;
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen flex items-start justify-center pt-54 overflow-hidden">
+          <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
+        </div>
+      </>
+    );
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -45,11 +52,11 @@ export default function LoginPage() {
   return (
     <>
       <Navbar />
-      <div
-        className="min-h-screen flex flex-col justify-center items-center bg-white pt-7
-       overflow-hidden"
-      >
-        <div className="w-full max-w-md bg-white shadow-lg rounded-xl p-12 flex flex-col gap-8 items-center">
+      <div className="min-h-screen bg-white overflow-hidden">
+        <div
+          className="fixed left-1/2 transform -translate-x-1/2 mt-9 top-auto w-full max-w-md bg-white shadow-lg rounded-xl p-12 flex flex-col gap-8 items-center z-10"
+          style={{ top: "auto" }}
+        >
           <h1 className="text-3xl font-medium text-gray-900 mb-4 text-center">
             Login
           </h1>

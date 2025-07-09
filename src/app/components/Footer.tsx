@@ -8,7 +8,7 @@ export default function Footer() {
           Lumé
         </span>
         <span className="text-xs font-normal text-black text-center">
-          © 2025 Lumé. All rights reserved.
+          © 2025 Lumé.
         </span>
       </div>
     </footer>

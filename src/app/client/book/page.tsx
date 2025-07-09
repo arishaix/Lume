@@ -29,6 +29,15 @@ export default function BookPage() {
   // Always clear booking state on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(BOOKING_STORAGE_KEY);
+      if (saved) {
+        const { step, selectedService, dateTime, userInfo } = JSON.parse(saved);
+        setStep(step || "service");
+        setSelectedService(selectedService || null);
+        setDateTime(dateTime || null);
+        setUserInfo(userInfo || null);
+        return;
+      }
       localStorage.removeItem(BOOKING_STORAGE_KEY);
     }
     setStep("service");
@@ -105,11 +114,7 @@ export default function BookPage() {
                       {service.name}
                     </h2>
                     <p className="text-gray-500 mb-1">
-                      From $
-                      {Array.isArray(service.prices) &&
-                      service.prices.length > 0
-                        ? Math.min(...service.prices.map((p: any) => p.price))
-                        : service.price || 0}
+                      From ${service.basicPrice}
                     </p>
                     <p className="text-gray-500 mb-4">
                       Duration: {service.duration} min

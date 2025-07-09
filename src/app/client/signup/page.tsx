@@ -11,6 +11,12 @@ export default function SignupPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (status === "loading") return;
     if (session) {
@@ -19,14 +25,15 @@ export default function SignupPage() {
   }, [session, status, router]);
 
   if (status === "loading" || session) {
-    return <div>Loading...</div>;
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen flex items-start justify-center pt-54 overflow-hidden">
+          <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
+        </div>
+      </>
+    );
   }
-
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -65,8 +72,11 @@ export default function SignupPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen flex flex-col justify-center items-center bg-white pt-2 overflow-hidden">
-        <div className="w-full max-w-sm bg-white shadow-lg rounded-xl p-8 flex flex-col gap-6 items-center">
+      <div className="min-h-screen bg-white overflow-hidden">
+        <div
+          className="fixed left-1/2 transform -translate-x-1/2 mt-9 top-auto w-full max-w-sm bg-white shadow-lg rounded-xl p-8 flex flex-col gap-6 items-center z-10"
+          style={{ top: "auto" }}
+        >
           <h1 className="text-2xl font-medium text-gray-900 mb-2 text-center">
             Sign Up
           </h1>

@@ -14,6 +14,17 @@ export default function ProfilePage() {
     }
   }, [status, router]);
 
+  if (status === "loading") {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen flex items-start justify-center pt-54">
+          <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
+        </div>
+      </>
+    );
+  }
+
   if (!session) {
     return (
       <>
@@ -31,8 +42,8 @@ export default function ProfilePage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen flex items-start justify-center bg-gray-50 pt-24">
-        <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md text-center">
+      <div className="min-h-screen bg-gray-50 overflow-hidden">
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-lg w-full max-w-md text-center z-10">
           <h2 className="text-2xl font-bold mb-6 text-black">Your Profile</h2>
           <div className="mb-4">
             <span className="block text-gray-600 text-sm">Name</span>
