@@ -24,3 +24,57 @@ body {
 * {
   font-family: inherit;
 }
+
+/* FullCalendar custom black grid and header styles */
+.fc .fc-scrollgrid,
+.fc .fc-scrollgrid-section,
+.fc .fc-scrollgrid-sync-table,
+.fc .fc-daygrid-day,
+.fc .fc-daygrid-day-top,
+.fc .fc-col-header-cell {
+  border-color: #000 !important;
+}
+
+/* Month label (toolbar title) */
+.fc .fc-toolbar-title {
+  color: #fff !important;
+  background: #cdad8e !important;
+  padding: 0.25em 1em;
+  border-radius: 0.5em;
+  display: inline-block;
+}
+
+/* Weekday headers */
+.fc .fc-col-header-cell-cushion {
+  color: #fff !important;
+  background: #cdad8e !important;
+  border-radius: 0.25em;
+  padding: 0.25em 0.5em;
+  display: inline-block;
+}
+
+/* Navigation arrows/buttons */
+.fc .fc-button,
+.fc .fc-button-primary {
+  background: #cdad8e !important;
+  color: #fff !important;
+  border: 1px solid #cdad8e !important;
+}
+
+.fc .fc-button-primary:not(:disabled):hover {
+  background: #fff !important;
+  color: #cdad8e !important;
+  border: 1px solid #cdad8e !important;
+}
+
+/* Event backgrounds */
+.fc .fc-daygrid-event {
+  background: #cdad8e !important;
+  color: #fff !important;
+  border: 1px solid #cdad8e !important;
+}
+
+/* Keep day numbers and grid lines black */
+.fc .fc-daygrid-day-number {
+  color: #000 !important;
+}

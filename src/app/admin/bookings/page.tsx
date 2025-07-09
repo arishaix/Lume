@@ -1,52 +1,82 @@
 "use client";
+import { useEffect, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
 import AdminNavbar from "../../components/AdminNavbar";
-
-const bookings = [
-  {
-    id: 1,
-    service: "Makeup",
-    client: "Alice Johnson",
-    date: "June 12, 2024",
-    time: "2:30 PM",
-    price: 100,
-    status: "Upcoming",
-  },
-  {
-    id: 2,
-    service: "Nails",
-    client: "Bob Smith",
-    date: "June 1, 2024",
-    time: "11:30 AM",
-    price: 60,
-    status: "Completed",
-  },
-  {
-    id: 3,
-    service: "Makeup",
-    client: "Carol Lee",
-    date: "May 20, 2024",
-    time: "4:00 PM",
-    price: 150,
-    status: "Cancelled",
-  },
-];
+import ConfirmationModal from "../../components/ConfirmationModal";
 
 export default function AdminBookingsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const tooltipRef = useRef<HTMLDivElement | null>(null);
+  // Tooltip state
+  const [tooltip, setTooltip] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    eventId: string | null;
+    locked: boolean;
+  }>({ visible: false, x: 0, y: 0, eventId: null, locked: false });
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+
+  // Handle click outside tooltip to close it if not locked
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        tooltipRef.current &&
+        !tooltipRef.current.contains(e.target as Node) &&
+        !tooltip.locked
+      ) {
+        setTooltip((t) => ({ ...t, visible: false, eventId: null }));
+      }
+    }
+    if (tooltip.visible && !tooltip.locked) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [tooltip.visible, tooltip.locked]);
 
   useEffect(() => {
     if (status === "loading") return;
     if (!session || (session.user as any).role !== "admin") {
       router.replace("/");
+      return;
     }
+    // Fetch bookings and map to calendar events
+    const fetchBookings = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/admin/bookings"); // Use the new admin endpoint
+        const data = await res.json();
+        // Map bookings to FullCalendar event format
+        const mapped = (data.bookings || []).map((b: any) => ({
+          id: b.id || b._id,
+          title: b.title || b.service?.name || b.userId?.name || "Booking",
+          start: b.start || b.date,
+          paymentStatus: b.paymentStatus,
+        }));
+        setEvents(mapped);
+      } catch (err) {
+        setEvents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBookings();
   }, [session, status, router]);
 
   if (
     status === "loading" ||
+    loading ||
     !session ||
     (session.user as any).role !== "admin"
   ) {
@@ -57,76 +87,196 @@ export default function AdminBookingsPage() {
     );
   }
 
-  const hasBookings = bookings.length > 0;
-
   return (
     <>
       <AdminNavbar />
       <div className="min-h-screen bg-white px-2 sm:px-4 py-10 flex flex-col items-center">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8 text-center">
-          Bookings
+        <h1 className="text-2xl sm:text-3xl font-bold text-black mb-8 text-center">
+          Bookings Calendar
         </h1>
-        <div className="w-full max-w-3xl flex flex-col gap-6">
-          {hasBookings ? (
-            bookings.map((booking) => (
-              <div
-                key={booking.id}
-                className="bg-white border border-gray-200 shadow rounded-xl p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8"
-              >
-                <div className="flex-1 flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-semibold text-gray-900">
-                      {booking.service}
-                    </span>
-                    <span
-                      className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        booking.status === "Upcoming"
-                          ? "bg-green-100 text-green-700"
-                          : booking.status === "Completed"
-                          ? "bg-gray-100 text-gray-500"
-                          : "bg-red-100 text-red-600"
-                      }`}
-                    >
-                      {booking.status}
-                    </span>
-                  </div>
-                  <div className="text-gray-700 text-sm">
-                    Client: {booking.client}
-                  </div>
-                  <div className="text-gray-700 text-sm">
-                    {booking.date}, {booking.time}
-                  </div>
-                  <div className="text-gray-700 text-sm">${booking.price}</div>
+        <div className="w-full max-w-5xl bg-white border border-black  p-4">
+          <FullCalendar
+            plugins={[dayGridPlugin, interactionPlugin]}
+            initialView="dayGridMonth"
+            height={600}
+            events={events}
+            eventColor="#000"
+            headerToolbar={{
+              left: "prev,next today",
+              center: "title",
+              right: "dayGridMonth,dayGridWeek,dayGridDay",
+            }}
+            eventDisplay="block"
+            eventTimeFormat={{
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            }}
+            eventContent={(arg) => {
+              // Custom rendering for completed bookings
+              const isCompleted =
+                arg.event.extendedProps.paymentStatus === "completed";
+              return (
+                <div
+                  style={{
+                    textDecoration: isCompleted ? "line-through" : "none",
+                  }}
+                >
+                  {arg.timeText && <b>{arg.timeText} </b>}
+                  {arg.event.title}
                 </div>
-                <div className="flex gap-2 mt-2 sm:mt-0">
-                  {booking.status === "Upcoming" && (
-                    <>
-                      <button className="px-4 py-2 border border-black text-black bg-white hover:bg-black hover:text-white transition text-sm">
-                        Cancel
-                      </button>
-                      <button className="px-4 py-2 border border-black text-black bg-white hover:bg-black hover:text-white transition text-sm">
-                        Mark as Completed
-                      </button>
-                    </>
-                  )}
-                  {booking.status === "Completed" && (
-                    <span className="px-4 py-2 text-gray-500 text-sm">
+              );
+            }}
+            eventMouseEnter={(info) => {
+              // Only show if not locked
+              if (!tooltip.locked) {
+                const { clientX, clientY } = info.jsEvent;
+                setTooltip({
+                  visible: true,
+                  x: clientX + 10,
+                  y: clientY + 10,
+                  eventId: info.event.id,
+                  locked: false,
+                });
+              }
+            }}
+            eventMouseLeave={() => {
+              // Only hide if not locked
+              if (!tooltip.locked) {
+                setTooltip((t) => ({ ...t, visible: false, eventId: null }));
+              }
+            }}
+            eventClick={(info) => {
+              const { clientX, clientY } = info.jsEvent;
+              setTooltip((prev) => {
+                // If already open and locked for this event, close it (toggle)
+                if (
+                  prev.visible &&
+                  prev.eventId === info.event.id &&
+                  prev.locked
+                ) {
+                  return {
+                    ...prev,
+                    visible: false,
+                    eventId: null,
+                    locked: false,
+                  };
+                }
+                // Otherwise, lock open for this event
+                return {
+                  visible: true,
+                  x: clientX + 10,
+                  y: clientY + 10,
+                  eventId: info.event.id,
+                  locked: true,
+                };
+              });
+            }}
+          />
+          {/* Tooltip with checkbox */}
+          {tooltip.visible &&
+            (() => {
+              const event = events.find((ev) => ev.id === tooltip.eventId);
+              const isCompleted = event && event.paymentStatus === "completed";
+              return (
+                <div
+                  ref={tooltipRef}
+                  style={{
+                    position: "fixed",
+                    top: tooltip.y,
+                    left: tooltip.x,
+                    background: "#fff",
+                    color: "#000",
+                    border: "1px solid #cdad8e",
+                    borderRadius: 6,
+                    padding: "8px 12px",
+                    zIndex: 1000,
+                    pointerEvents: "auto",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                    fontSize: 14,
+                    minWidth: 180,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  {isCompleted ? (
+                    <span style={{ color: "#4caf50", fontWeight: 600 }}>
                       Completed
                     </span>
-                  )}
-                  {booking.status === "Cancelled" && (
-                    <span className="px-4 py-2 text-red-500 text-sm">
-                      Cancelled
-                    </span>
+                  ) : (
+                    <label
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                        cursor: "pointer",
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        onClick={() => {
+                          setTooltip((t) => ({
+                            ...t,
+                            visible: false,
+                            eventId: null,
+                            locked: false,
+                          }));
+                          setSelectedEventId(tooltip.eventId);
+                          setModalOpen(true);
+                        }}
+                        style={{ accentColor: "#cdad8e" }}
+                      />
+                      Mark as completed
+                    </label>
                   )}
                 </div>
-              </div>
-            ))
-          ) : (
-            <div className="w-full flex flex-col items-center gap-4 py-16">
-              <p className="text-gray-600 text-lg">No bookings found.</p>
-            </div>
-          )}
+              );
+            })()}
+          {/* Confirmation Modal */}
+          <ConfirmationModal
+            open={modalOpen}
+            onClose={() => {
+              setModalOpen(false);
+              setTooltip((t) => ({
+                ...t,
+                visible: false,
+                eventId: null,
+                locked: false,
+              }));
+            }}
+            onConfirm={async () => {
+              if (!selectedEventId) return;
+              try {
+                const res = await fetch("/api/admin/bookings/complete", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ bookingId: selectedEventId }),
+                });
+                const data = await res.json();
+                if (data.success) {
+                  setEvents((prev) =>
+                    prev.map((ev) =>
+                      ev.id === selectedEventId
+                        ? { ...ev, paymentStatus: "completed" }
+                        : ev
+                    )
+                  );
+                }
+              } catch (e) {
+                // Optionally show error toast
+              }
+              setModalOpen(false);
+              setTooltip((t) => ({
+                ...t,
+                visible: false,
+                eventId: null,
+                locked: false,
+              }));
+            }}
+            message="Are you sure you want to mark this booking as completed?"
+            confirmText="Yes, Mark"
+          />
         </div>
       </div>
     </>

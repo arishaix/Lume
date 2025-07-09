@@ -1,13 +1,15 @@
-import dbConnect from "../auth/mongodb";
 import Booking from "@/models/bookingModel";
+Booking;
 import Service from "@/models/serviceModel";
+Service; // Ensure Service model is registered
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { NextResponse, NextRequest } from "next/server";
-import clientPromise from "../auth/mongodb";
+import dbConnect from "../auth/mongodb";
 import mongoose from "mongoose";
 
 export async function GET(req: NextRequest) {
+  await dbConnect(); // Ensure connection before any query
   const session = await getServerSession(authOptions);
   const { searchParams } = new URL(req.url);
   const email = searchParams.get("email");
@@ -36,7 +38,6 @@ export async function GET(req: NextRequest) {
   query.paymentStatus = { $ne: "cancelled" };
 
   try {
-    await clientPromise;
     const total = await Booking.countDocuments(query);
     const bookings = await Booking.find(query)
       .populate({ path: "service", select: "name price" })

@@ -8,8 +8,8 @@ const BookingSchema = new Schema({
   price: { type: Number, required: false },
   paymentStatus: {
     type: String,
-    enum: ["pending", "paid", "cancelled"],
-    default: "pending",
+    enum: ["paid", "completed", "cancelled"],
+    default: "paid",
   },
 });
 

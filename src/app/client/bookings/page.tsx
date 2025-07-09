@@ -19,16 +19,22 @@ export default function MyBookingsPage() {
 
   useEffect(() => {
     if (status === "loading") return;
-    if (!session || !(session.user as any)?.id) {
+    if (!session) {
       setLoading(false);
       return;
     }
+    // Try to get userId, fallback to email if needed
+    const userId = (session.user as any)?.id;
+    const email = session.user?.email;
+    if (!userId && !email) {
+      // Don't set loading to false yet, wait for userId or email to be available
+      return;
+    }
     setLoading(true);
-    fetch(
-      `/api/bookings?userId=${
-        (session.user as any).id
-      }&page=${page}&limit=${BOOKINGS_PER_PAGE}`
-    )
+    const url = userId
+      ? `/api/bookings?userId=${userId}&page=${page}&limit=${BOOKINGS_PER_PAGE}`
+      : `/api/bookings?email=${email}&page=${page}&limit=${BOOKINGS_PER_PAGE}`;
+    fetch(url)
       .then((res) => res.json())
       .then((data) => {
         setBookings(data.bookings || []);

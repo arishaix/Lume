@@ -3,6 +3,7 @@ import dbConnect from "../../auth/mongodb";
 import Booking from "@/models/bookingModel";
 import User from "@/models/userModel";
 import Service from "@/models/serviceModel";
+Service; // Ensure Service model is registered
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import mongoose from "mongoose";
