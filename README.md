@@ -1,6 +1,6 @@
 🌸 Lumé – Beauty Service Booking Platform
 
-Lumé is a responsive web application designed for booking beauty services such as makeup, nails, and skincare. It provides a smooth booking flow for clients and a powerful management dashboard for admins.
+Lumé is a responsive web application designed for booking beauty services such as makeup and nails. It provides a smooth booking flow for clients and a powerful management dashboard for admins.
 
 🚀 Features
 
